@@ -12,12 +12,26 @@ exports.createProduct = async (req, res) => {
 
 exports.getProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const { sortBy, sortOrder, category } = req.query;
+
+    const sortOptions = {};
+    if (sortBy === "price" || sortBy === "postedAt") {
+      sortOptions[sortBy] = sortOrder === "asc" ? 1 : -1;
+    }
+
+    let filterOptions = {};
+    if (category) {
+      filterOptions = { category };
+    }
+
+    const products = await Product.find(filterOptions).sort(sortOptions);
+
     res.json(products);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 exports.editProduct = async (req, res) => {
   try {
